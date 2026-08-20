@@ -6,6 +6,7 @@ import Explore from "./pages/Explore";
 import Home from "./pages/Home";
 import LocationDetails from "./pages/LocationDetails";
 import NotFound from "./pages/NotFound";
+import SearchResults from "./pages/SearchResults";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
           <Route path="/location/:id" element={<LocationDetails />} />
           <Route path="/about" element={<About />} />
           <Route path="*" element={<NotFound />} />
+          <Route path="/search" element={<SearchResults />} />
         </Routes>
       </div>
 

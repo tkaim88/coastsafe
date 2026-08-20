@@ -1,59 +1,84 @@
-import { Link, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useParams, useLocation as useRouterLocation } from "react-router-dom";
 import MarineConditions from "../components/MarineConditions";
 import SafetyIndicator from "../components/SafetyIndicator";
 import WeatherCard from "../components/WeatherCard";
 import Forecast from "../components/Forecast";
+import LoadingSpinner from "../components/LoadingSpinner";
+import ErrorMessage from "../components/ErrorMessage";
 import { coastalLocations } from "../data/coastalLocations";
-
-const demoWeather = {
-  temperature_2m: 27,
-  apparent_temperature: 29,
-  relative_humidity_2m: 76,
-  precipitation: 0,
-  weather_code: 1,
-  wind_speed_10m: 18,
-  wind_direction_10m: 110,
-};
-
-const demoMarine = {
-  wave_height: 1.2,
-  wave_direction: 90,
-  wave_period: 8,
-  sea_surface_temperature: 26,
-  sea_level_height_msl: 0.4,
-};
-
-const demoHourly = {
-  time: Array.from({ length: 12 }, (_, index) => {
-    const date = new Date();
-    date.setHours(date.getHours() + index, 0, 0, 0);
-    return date.toISOString();
-  }),
-  temperature_2m: [27, 27, 27, 28, 28, 28, 29, 29, 29, 28, 28, 27],
-  precipitation_probability: [5, 5, 5, 10, 10, 10, 15, 15, 10, 10, 5, 5],
-  weather_code: [1, 1, 2, 2, 2, 3, 3, 3, 2, 2, 1, 1],
-};
-
-const weatherUnits = {
-  temperature_2m: "°C",
-  apparent_temperature: "°C",
-  relative_humidity_2m: "%",
-  wind_speed_10m: " km/h",
-};
-
-const marineUnits = {
-  wave_height: " m",
-  wave_direction: "°",
-  wave_period: " s",
-  sea_surface_temperature: "°C",
-};
+import { fetchWeather } from "../services/weatherApi";
+import { fetchMarine } from "../services/marineApi";
+import { formatWeather } from "../utils/formatWeather";
+import { formatMarineData } from "../utils/formatMarineData";
 
 function LocationDetails() {
   const { id } = useParams();
+  const routerLocation = useRouterLocation();
+  const searchedLocation = routerLocation.state?.location;
 
-  const location = coastalLocations.find(
-    (item) => item.id.toLowerCase() === id?.toLowerCase(),
-  );
+  const location =
+    searchedLocation ??
+    coastalLocations.find((item) => item.id.toLowerCase() === id?.toLowerCase());
+
+  const [weather, setWeather] = useState(null);
+  const [marine, setMarine] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    if (!location) {
+      setLoading(false);
+      return;
+    }
+
+    let isCancelled = false;
+
+    async function loadConditions() {
+      setLoading(true);
+      setError(null);
+
+      try {
+        // Fetch weather and marine in parallel — a marine failure
+        // shouldn't block weather from displaying, and vice versa.
+        const [weatherResult, marineResult] = await Promise.allSettled([
+          fetchWeather(location.latitude, location.longitude),
+          fetchMarine(location.latitude, location.longitude),
+        ]);
+
+        if (isCancelled) return;
+
+        if (weatherResult.status === "fulfilled") {
+          setWeather(formatWeather(weatherResult.value));
+        } else {
+          // Weather failing is the one we treat as a hard error —
+          // it's core to the page.
+          throw weatherResult.reason;
+        }
+
+        if (marineResult.status === "fulfilled") {
+          setMarine(formatMarineData(marineResult.value));
+        } else {
+          // Marine failing is non-fatal — just show as unavailable.
+          setMarine(null);
+        }
+      } catch (err) {
+        if (!isCancelled) {
+          setError(err);
+        }
+      } finally {
+        if (!isCancelled) {
+          setLoading(false);
+        }
+      }
+    }
+
+    loadConditions();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [location]);
 
   if (!location) {
     return (
@@ -103,38 +128,42 @@ function LocationDetails() {
             </p>
 
             <div className="mt-6 flex flex-wrap gap-3 text-sm text-slate-400">
-              <span>
-                Latitude: {location.latitude.toFixed(4)}
-              </span>
+              <span>Latitude: {location.latitude.toFixed(4)}</span>
               <span>•</span>
-              <span>
-                Longitude: {location.longitude.toFixed(4)}
-              </span>
+              <span>Longitude: {location.longitude.toFixed(4)}</span>
             </div>
           </div>
         </div>
       </section>
 
       <section className="mx-auto max-w-7xl space-y-6 px-4 py-10 sm:px-6 lg:px-8">
-        <SafetyIndicator
-          weather={demoWeather}
-          marine={demoMarine}
-        />
+        {loading && <LoadingSpinner />}
 
-        <WeatherCard
-          current={demoWeather}
-          units={weatherUnits}
-        />
+        {!loading && error && (
+          <ErrorMessage
+            message="We couldn't load live conditions for this location. Please try again shortly."
+          />
+        )}
 
-        <MarineConditions
-          current={demoMarine}
-          units={marineUnits}
-        />
+        {!loading && !error && weather && (
+          <>
+            <SafetyIndicator weather={weather.current} marine={marine?.current ?? null} />
 
-        <Forecast
-          hourly={demoHourly}
-          units={weatherUnits}
-        />
+            <WeatherCard current={weather.current} units={weather.units} />
+
+            {marine ? (
+              <MarineConditions current={marine.current} units={marine.units} />
+            ) : (
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-500">
+                Marine conditions aren't available for this location right now.
+              </div>
+            )}
+
+            {weather.hourly && (
+              <Forecast hourly={weather.hourly} units={weather.units} />
+            )}
+          </>
+        )}
 
         <div className="rounded-2xl border border-slate-200 bg-white p-6 text-sm leading-6 text-slate-500">
           CoastSafe uses modeled weather and marine information for general

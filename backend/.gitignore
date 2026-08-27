@@ -1,0 +1,17 @@
+# Environment
+.env
+venv/
+.venv/
+
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+
+# Flask-Migrate keeps its own history; only ignore local SQLite test DBs
+*.sqlite3
+*.db
+
+# Editors / OS
+.vscode/
+.DS_Store

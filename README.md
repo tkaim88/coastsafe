@@ -1,138 +1,96 @@
-# CoastSafe
+# 🌊 CoastSafe
 
-CoastSafe is a consumer-facing coastal conditions application designed to help users make better-informed decisions before visiting beaches and other coastal locations.
+**Know before you go.**
 
-The project is being developed as a three-phase Moringa School capstone. Phase 1 focuses on the React frontend and public API integration. Phase 2 will introduce a Flask backend and PostgreSQL database. Phase 3 will add authentication and user-owned functionality.
+CoastSafe is a water-safety web application for Kenya's coast, helping
+visitors check live weather and marine conditions before entering the
+water — and helping verified businesses (pools, water parks, resorts)
+list their facility so visitors can find not just *"is the open water
+safe"* but *"where can I safely go swim."*
 
----
+Built as a three-phase Moringa School capstone. All three phases are now
+implemented and the application is deployed and live.
 
-## Project Objective
-
-CoastSafe brings relevant weather and marine information into one simple interface for people planning coastal activities.
-
-Users can:
-
-- Discover coastal locations.
-- Search for a location.
-- View current weather conditions.
-- View marine conditions.
-- Review short-term forecasts.
-- Interpret conditions through a simple visual safety-oriented summary.
-
-CoastSafe is an informational planning tool. It is not a navigation system, emergency service, lifeguard replacement, or professional marine advisory system.
+🔗 **Live app:** [coastsafe.vercel.app](https://coastsafe.vercel.app)
+🔗 **Live API:** [coastsafe.onrender.com](https://coastsafe.onrender.com)
 
 ---
 
-## Capstone Phases
+## 📌 Project Objective
 
-### Phase 1 — React Application
+CoastSafe brings weather, marine conditions, and community/business trust
+signals into one simple interface for people planning coastal activities.
 
-The first phase focuses on:
+Visitors can:
 
-- React
-- Vite
-- JavaScript
-- JSX
-- React Router
-- Tailwind CSS
-- Open-Meteo public APIs
-- Dynamic API fetching
-- Loading states
-- Error handling
-- Conditional rendering
-- Responsive design
-- Multiple views/components
-- Git/GitHub
-- Documentation
-- Deployment
+- 🔍 Search any coastal location
+- ☀️ View live weather conditions
+- 🌊 View live marine conditions (wave height, swell, etc.)
+- 📝 Read community-submitted safety reports for a location
+- 🏨 Browse verified, admin-approved facility listings — including
+  lifeguard availability — to find a safe place to swim
+- 🔐 Create an account to submit their own safety reports or list a
+  business
 
-### Phase 2 — Flask Backend
-
-The application will be extended with:
-
-- Flask
-- REST API endpoints
-- PostgreSQL
-- Database models
-- CRUD operations
-- Persistent application data
-- Backend business logic
-
-### Phase 3 — Authentication and User-Owned Data
-
-The application will eventually support:
-
-- User registration
-- Login
-- Logout
-- Authentication
-- User profiles
-- Saved coastal locations
-- Favorite locations
-- User reports
-- User-owned data
+CoastSafe is an informational planning tool. It is **not** a navigation
+system, emergency service, lifeguard replacement, or professional marine
+advisory system.
 
 ---
 
-## Technology Stack
+## ✅ Project Status
 
-### Phase 1
-
-- React
-- Vite
-- JavaScript
-- JSX
-- React Router
-- Tailwind CSS
-- Open-Meteo Geocoding API
-- Open-Meteo Weather Forecast API
-- Open-Meteo Marine API
-
-### Phase 2
-
-- Flask
-- PostgreSQL
-- SQLAlchemy
-- REST API
-
-### Phase 3
-
-- Authentication
-- Authorization
-- User-owned resources
+| Phase | Scope | Status |
+|---|---|---|
+| **Phase 1** | React frontend, live Open-Meteo integration | ✅ Complete, deployed |
+| **Phase 2** | Flask + PostgreSQL backend, full CRUD, ownership, pagination | ✅ Complete, deployed |
+| **Phase 2 (frontend)** | JWT auth wired into the UI — signup, login, protected routes, report submission | ✅ Complete, merged |
+| **Business Listings** | Owner-submitted facility listings with admin approval workflow | 🚧 In progress |
 
 ---
 
-## External APIs
+## 🛠️ Technology Stack
 
-### Geocoding
+**Frontend**
+- ⚛️ React + Vite
+- 🎨 Tailwind CSS
+- 🧭 React Router
+- ▲ Deployed on Vercel
+
+**Backend**
+- 🐍 Flask 3 (app-factory pattern)
+- 🗄️ PostgreSQL (hosted on Supabase)
+- 🔗 Flask-SQLAlchemy + Flask-Migrate
+- 🔑 Flask-JWT-Extended (real token revocation on logout)
+- 🌐 Deployed on Render
+
+**External APIs (Open-Meteo — no key required)**
+- 📍 Geocoding — `https://geocoding-api.open-meteo.com/v1/search`
+- ☀️ Weather Forecast — `https://api.open-meteo.com/v1/forecast`
+- 🌊 Marine Conditions — `https://marine-api.open-meteo.com/v1/marine`
+
+---
+
+## 📂 Repository Structure
 
 ```text
-https://geocoding-api.open-meteo.com/v1/search
-Used to convert a location name into latitude and longitude.
-
-Weather
-https://api.open-meteo.com/v1/forecast
-
-Used for atmospheric weather conditions and forecasts.
-
-Marine
-https://marine-api.open-meteo.com/v1/marine
-
-Used for wave and other marine conditions.
-
-Repository Structure
 Project-1/
 ├── frontend/
 │   ├── public/
 │   └── src/
 │       ├── assets/
 │       ├── components/
-│       ├── data/
+│       ├── context/        # AuthContext (in-memory JWT)
 │       ├── pages/
-│       ├── services/
+│       ├── services/        # apiClient + one service per resource
 │       └── utils/
 ├── backend/
+│   ├── app/
+│   │   ├── models/           # one file per table
+│   │   ├── routes/           # one blueprint per resource
+│   │   └── utils/            # ownership + admin decorators, pagination
+│   ├── migrations/
+│   └── seed.py
 ├── docs/
 │   ├── api/
 │   ├── design/
@@ -140,57 +98,91 @@ Project-1/
 │   └── presentation/
 ├── .gitignore
 └── README.md
-Current Project Status
+```
 
-Phase 1 — Project initialization and API validation completed.
+---
 
-Next milestone:
+## 🚀 Setup & Run Locally
 
-Application shell and React routing.
+**Backend** — see [`backend/README.md`](./backend/README.md) for full
+setup instructions.
 
-Development Principles
+**Frontend**
+```bash
+cd frontend
+npm install
 
-The project will follow these principles:
+# create frontend/.env
+echo "VITE_API_BASE_URL=http://localhost:5000/api" > .env
 
-Keep components focused and reusable.
-Keep API calls inside service modules rather than UI components.
-Handle loading, errors, empty results and successful responses explicitly.
-Keep documentation updated throughout development.
-Maintain meaningful Git commits for every major milestone.
-Keep Phase 2 and Phase 3 requirements in mind when making Phase 1 architectural decisions.
-Git Strategy
+npm run dev
+```
 
-This is one repository covering all three phases.
+---
 
-The repository root is:
+## ✨ Core Functionality
 
-Project-1/
+### For visitors
+- Search any coastal location and see **live** weather + marine
+  conditions (not demo data)
+- Read community safety reports for a location
+- Browse admin-approved business/facility listings — see lifeguard
+  availability, hours, and amenities at a glance
 
-Git is initialized only at the repository root.
+### For account holders
+- Sign up, log in, log out (JWT, with real server-side revocation)
+- Submit a safety report tied to a location
+- Submit a facility listing for admin review
 
-Example commit messages:
+### For admins
+- Review pending business listings
+- Approve or reject a listing before it becomes publicly visible
 
-chore: initialize CoastSafe project
-docs: document CoastSafe problem and API research
-fix: correct Open-Meteo marine API endpoint
-feat: add CoastSafe application shell
-feat: implement location search
-feat: integrate weather API
-feat: integrate marine API
-fix: handle API request failures
-style: improve responsive dashboard layout
-docs: update Phase 1 documentation
-Phase 1 Assignment Deliverables
-Working React application
-Dynamic public API integration
-Loading/error state handling
-At least three views or major components
-Meaningful styling
-GitHub repository
-README
-Optional deployment
-5–7 slide presentation
-5–10 minute video presentation
-Written reflection
-Peer response
+---
 
+## 🔐 Auth & Ownership
+
+Every write to a `SafetyReport` or `Business` is checked against the
+authenticated user's ID via a single shared `owns_resource` decorator —
+users can only edit or delete records they created. Business listings
+additionally require admin approval (`status: pending → approved`)
+before they're visible to the public, enforced via a shared
+`admin_required` decorator. Both live in
+`backend/app/utils/decorators.py` — one place, never duplicated per
+route.
+
+---
+
+## 🌳 Git Strategy
+
+One repository, one root (`Project-1/`), feature-branch workflow for
+every chunk of work:
+
+```text
+feature/backend-api
+feature/frontend-auth-integration
+feature/business-listings
+```
+
+Merged via GitHub pull requests with `--no-ff`, so history stays
+readable and every feature has a visible review trail.
+
+**Commit convention:**
+```text
+feat:  new functionality
+fix:   bug fixes
+chore: tooling, config, dependencies
+docs:  documentation
+style: formatting / non-functional UI changes
+```
+
+---
+
+## 🧭 Development Principles
+
+- Keep components focused and reusable
+- Keep API calls inside service modules, never inline in UI components
+- Handle loading, errors, empty states, and success explicitly
+- One shared helper per concern (pagination, ownership, admin checks) —
+  never duplicated per resource
+- Feature-branch workflow for every new chunk of work

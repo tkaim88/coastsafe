@@ -51,3 +51,27 @@ def owns_resource(fetch_fn):
         return wrapper
 
     return decorator
+
+def admin_required(view_fn):
+    """
+    Decorator for routes that only an admin should be able to call
+    (e.g. approving/rejecting a business listing). Must be used after
+    @jwt_required() so get_jwt_identity() has a valid identity to look up.
+
+    Usage:
+        @businesses_bp.route("/pending", methods=["GET"])
+        @jwt_required()
+        @admin_required
+        def list_pending_businesses():
+            ...
+    """
+    @wraps(view_fn)
+    def wrapper(*args, **kwargs):
+        from app.models import User  # local import avoids a circular import with models
+
+        current_user_id = int(get_jwt_identity())
+        user = User.query.get(current_user_id)
+        if user is None or not user.is_admin:
+            return jsonify({"error": "Admin access required"}), 403
+        return view_fn(*args, **kwargs)
+    return wrapper

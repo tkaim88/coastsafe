@@ -5,14 +5,18 @@ Follows the exact same shape as safety_report_routes.py deliberately —
 same validation pattern, same use of `owns_resource`, same pagination
 helper. Two resources implementing the same conventions is what makes this
 DRY rather than "two similar-looking but subtly different copies."
+
+Public listing/detail routes only ever return approved businesses — a
+pending or rejected listing is only visible to its owner (via /mine) or
+an admin (via /pending).
 """
 
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from app.extensions import db
-from app.models import Business, Location, FACILITY_TYPES, AD_TIERS
-from app.utils.decorators import owns_resource
+from app.models import Business, Location, FACILITY_TYPES, AD_TIERS, STATUSES
+from app.utils.decorators import owns_resource, admin_required
 from app.utils.pagination import paginate_query
 
 businesses_bp = Blueprint("businesses", __name__, url_prefix="/api/businesses")
@@ -43,7 +47,7 @@ def _validate_business_payload(data, partial=False):
 
 @businesses_bp.route("", methods=["GET"])
 def list_businesses():
-    query = Business.query.order_by(Business.created_at.desc())
+    query = Business.query.filter_by(status="approved").order_by(Business.created_at.desc())
 
     location_id = request.args.get("location_id", type=int)
     if location_id:
@@ -53,6 +57,27 @@ def list_businesses():
     if lifeguard_only and lifeguard_only.lower() == "true":
         query = query.filter_by(lifeguard_available=True)
 
+    return jsonify(paginate_query(query, lambda b: b.to_dict())), 200
+
+
+@businesses_bp.route("/mine", methods=["GET"])
+@jwt_required()
+def list_my_businesses():
+    """
+    A business owner's own listings, regardless of status — so they can
+    see a listing sitting in "pending" review, not just approved ones.
+    """
+    user_id = int(get_jwt_identity())
+    query = Business.query.filter_by(user_id=user_id).order_by(Business.created_at.desc())
+    return jsonify(paginate_query(query, lambda b: b.to_dict())), 200
+
+
+@businesses_bp.route("/pending", methods=["GET"])
+@jwt_required()
+@admin_required
+def list_pending_businesses():
+    """Admin review queue — oldest submissions first."""
+    query = Business.query.filter_by(status="pending").order_by(Business.created_at.asc())
     return jsonify(paginate_query(query, lambda b: b.to_dict())), 200
 
 
@@ -84,6 +109,9 @@ def create_business():
         contact_phone=data.get("contact_phone"),
         contact_email=data.get("contact_email"),
         ad_tier=data.get("ad_tier", "standard"),
+        # Owners can never self-approve — every new listing starts pending,
+        # regardless of what (if anything) the client sends for status.
+        status="pending",
     )
     db.session.add(business)
     db.session.commit()
@@ -102,6 +130,8 @@ def update_business(business_id, resource):
 
     # Only touch fields that were actually sent, so a partial PATCH can't
     # accidentally wipe out fields the client didn't intend to change.
+    # Deliberately excludes "status" — an owner can never change their own
+    # listing's approval status, only an admin can (see set_business_status).
     updatable_fields = [
         "name", "facility_type", "description", "lifeguard_available",
         "lifeguard_hours", "amenities", "contact_phone", "contact_email", "ad_tier",
@@ -112,6 +142,28 @@ def update_business(business_id, resource):
 
     db.session.commit()
     return jsonify(resource.to_dict()), 200
+
+
+@businesses_bp.route("/<int:business_id>/status", methods=["PATCH"])
+@jwt_required()
+@admin_required
+def set_business_status(business_id):
+    """Admin-only: approve or reject a pending listing."""
+    business = Business.query.get(business_id)
+    if business is None:
+        return jsonify({"error": "Business not found"}), 404
+
+    data = request.get_json(silent=True) or {}
+    new_status = data.get("status")
+    if new_status not in STATUSES:
+        return jsonify({
+            "error": "Validation failed",
+            "details": {"status": f"must be one of {STATUSES}"},
+        }), 422
+
+    business.status = new_status
+    db.session.commit()
+    return jsonify(business.to_dict()), 200
 
 
 @businesses_bp.route("/<int:business_id>", methods=["DELETE"])

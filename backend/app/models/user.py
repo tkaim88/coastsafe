@@ -5,6 +5,10 @@ Handles both regular users (who submit safety reports) and business owners
 (who manage a facility listing) through a single `role` column rather than
 two separate tables — the two kinds of account share every other field, so
 splitting them would just duplicate the auth logic.
+
+is_admin is separate from role: role describes what a user *does* on the
+platform (submits reports vs. manages a listing), while is_admin is a
+platform-operator flag used only to gate the business-approval workflow.
 """
 
 from datetime import datetime, timezone
@@ -23,6 +27,11 @@ class User(db.Model):
 
     # "user" submits safety reports; "business_owner" manages Business listings.
     role = db.Column(db.String(20), nullable=False, default="user")
+
+    # Platform-operator flag — gates admin-only routes (e.g. approving
+    # business listings). Not exposed via to_dict(); set directly in the
+    # database for now rather than through any in-app UI.
+    is_admin = db.Column(db.Boolean, nullable=False, default=False)
 
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
@@ -47,8 +56,8 @@ class User(db.Model):
     def to_dict(self):
         """
         Public representation of a user. Deliberately excludes
-        password_hash — this is what's safe to send to the frontend or
-        embed inside a report/business payload.
+        password_hash and is_admin — neither is safe or useful to send to
+        the frontend or embed inside a report/business payload.
         """
         return {
             "id": self.id,

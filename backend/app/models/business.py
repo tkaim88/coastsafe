@@ -6,6 +6,10 @@ water park, or resort, tied to a Location. This is the model the whole
 monetization story runs on — lifeguard_available and facility_type exist
 because that's the actual trust signal a visitor is looking for, not just
 a generic "ad" with a name and a price tier.
+
+A listing starts as "pending" and only becomes visible to the public once
+an admin approves it — status exists so not just any business can list
+themselves without review.
 """
 
 from datetime import datetime, timezone
@@ -14,6 +18,7 @@ from app.extensions import db
 
 FACILITY_TYPES = ("swimming_pool", "water_park", "beach_resort", "lodge", "other")
 AD_TIERS = ("standard", "featured")
+STATUSES = ("pending", "approved", "rejected")
 
 
 class Business(db.Model):
@@ -43,6 +48,10 @@ class Business(db.Model):
 
     ad_tier = db.Column(db.String(20), nullable=False, default="standard")
 
+    # Gatekeeping: a listing is only public once an admin approves it.
+    # Owners can never set this themselves — enforced in the route layer.
+    status = db.Column(db.String(20), nullable=False, default="pending")
+
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = db.Column(
         db.DateTime,
@@ -65,6 +74,7 @@ class Business(db.Model):
             "contact_phone": self.contact_phone,
             "contact_email": self.contact_email,
             "ad_tier": self.ad_tier,
+            "status": self.status,
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
         }

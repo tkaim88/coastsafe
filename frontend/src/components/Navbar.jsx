@@ -39,11 +39,12 @@ function Navbar() {
 
           <nav className="hidden items-center gap-2 sm:flex">
             <NavLink to="/" className={navLinkClass}>Home</NavLink>
-            <NavLink to="/explore" className={navLinkClass} style={{ color: "#ffffff" }}>Explore</NavLink>
+            <NavLink to="/explore" className={navLinkClass}>Explore</NavLink>
             <NavLink to="/about" className={navLinkClass}>About</NavLink>
 
             {isAuthenticated ? (
               <>
+                <NavLink to="/my-listings" className={navLinkClass}>My Listings</NavLink>
                 <span className="px-3 text-sm text-slate-200">{user?.name}</span>
                 <button
                   onClick={handleLogout}

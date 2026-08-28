@@ -7,6 +7,7 @@ import Forecast from "../components/Forecast";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ErrorMessage from "../components/ErrorMessage";
 import ReportForm from "../components/ReportForm";
+import LocationBusinesses from "../components/LocationBusinesses";
 import { coastalLocations } from "../data/coastalLocations";
 import { fetchWeather } from "../services/weatherApi";
 import { fetchMarine } from "../services/marineApi";
@@ -29,9 +30,6 @@ function LocationDetails() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Backend numeric Location ID (see services/locationsApi.js) — null
-  // means this location has no match in the backend yet, so reporting
-  // is disabled rather than pointed at the wrong record.
   const [backendLocationId, setBackendLocationId] = useState(null);
   const [reports, setReports] = useState([]);
   const [reportsLoading, setReportsLoading] = useState(false);
@@ -152,6 +150,14 @@ function LocationDetails() {
             {weather.hourly && <Forecast hourly={weather.hourly} units={weather.units} />}
           </>
         )}
+
+        {/* Verified business/facility listings — approved only. */}
+        <div className="rounded-2xl border border-slate-200 bg-white p-6">
+          <h2 className="text-lg font-bold text-slate-900">Verified Facilities</h2>
+          <div className="mt-4">
+            <LocationBusinesses backendLocationId={backendLocationId} />
+          </div>
+        </div>
 
         {/* Community safety reports — only available once this location
             has a matching backend record. */}

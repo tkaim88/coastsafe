@@ -34,3 +34,22 @@ export async function resolveBackendLocationId(location) {
 
   return match ? match.id : null;
 }
+
+export async function resolveLocation(token, location) {
+  const result = await apiRequest("/locations/resolve", {
+    method: "POST",
+    token,
+    body: {
+      name: location.name,
+      latitude: location.latitude,
+      longitude: location.longitude,
+      region: location.region,
+      country: location.country,
+      water_type: location.waterType,
+      description: location.description,
+    },
+  });
+
+  cachedBackendLocations = null;
+  return result;
+}

@@ -10,7 +10,7 @@ const STATUS_STYLES = {
 };
 
 function MyListings() {
-  const { token } = useAuth();
+  const { accessToken: token } = useAuth();
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

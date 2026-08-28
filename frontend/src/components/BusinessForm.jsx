@@ -13,7 +13,7 @@ const FACILITY_TYPES = [
 ];
 
 function BusinessForm({ onCreated }) {
-  const { token } = useAuth();
+  const { accessToken: token } = useAuth();
 
   const [locationQuery, setLocationQuery] = useState("");
   const [locationResults, setLocationResults] = useState([]);

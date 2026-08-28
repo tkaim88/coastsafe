@@ -3,7 +3,7 @@ import { useAuth } from "../context/AuthContext";
 import { listPendingBusinesses, setBusinessStatus } from "../services/businessesApi";
 
 function AdminReviewQueue() {
-  const { token } = useAuth();
+  const { accessToken: token } = useAuth();
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

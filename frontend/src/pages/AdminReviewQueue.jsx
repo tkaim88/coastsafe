@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { listPendingBusinesses, setBusinessStatus } from "../services/businessesApi";
+import { listPendingBusinesses, setBusinessStatus, deleteBusiness } from "../services/businessesApi";
 
 function AdminReviewQueue() {
   const { accessToken: token } = useAuth();
@@ -32,6 +32,16 @@ function AdminReviewQueue() {
       setListings((prev) => prev.filter((b) => b.id !== id));
     } catch (err) {
       alert(err.message || "Failed to update listing.");
+    }
+  }
+
+  async function handleDelete(id) {
+    if (!confirm("Permanently delete this listing?")) return;
+    try {
+      await deleteBusiness(token, id);
+      setListings((prev) => prev.filter((b) => b.id !== id));
+    } catch (err) {
+      alert(err.message || "Failed to delete listing.");
     }
   }
 
@@ -87,6 +97,12 @@ function AdminReviewQueue() {
                 className="rounded-lg border border-red-400/30 px-4 py-1.5 text-sm text-red-300 hover:bg-red-400/10"
               >
                 Reject
+              </button>
+              <button
+                onClick={() => handleDelete(business.id)}
+                className="rounded-lg border border-slate-400/30 px-4 py-1.5 text-sm text-slate-300 hover:bg-white/10"
+              >
+                Delete
               </button>
             </div>
           </div>

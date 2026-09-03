@@ -1,188 +1,154 @@
-# 🌊 CoastSafe
+🌊 CoastSafe
+Real-time water safety for Kenya's coast.
+CoastSafe helps beachgoers check live weather and marine conditions before heading out, read and share community safety reports for specific locations, and discover verified facilities — pools, water parks, and resorts — including lifeguard availability. Business owners can list and manage their facilities directly on the platform.
+🔗 Live app: coastsafe.vercel.app
 
-**Know before you go.**
+🎞️ Project presentation: Google Slides
 
-CoastSafe is a water-safety web application for Kenya's coast, helping
-visitors check live weather and marine conditions before entering the
-water — and helping verified businesses (pools, water parks, resorts)
-list their facility so visitors can find not just *"is the open water
-safe"* but *"where can I safely go swim."*
+📦 Repo: tkaim88/coastsafe
 
-Built as a three-phase Moringa School capstone. All three phases are now
-implemented and the application is deployed and live.
+Table of Contents
+·	Overview
+·	Features
+·	Tech Stack
+·	Architecture
+·	Getting Started
+o	Prerequisites
+o	Backend Setup
+o	Frontend Setup
+·	Environment Variables
+·	API Overview
+·	Project Structure
+·	Deployment
+·	Roadmap
+·	Author
 
-🔗 **Live app:** [coastsafe.vercel.app](https://coastsafe.vercel.app)
-🔗 **Live API:** [coastsafe.onrender.com](https://coastsafe.onrender.com)
+Overview
+Kenya's coastline draws thousands of visitors, but there's no easy way to check real-time water conditions or know which beaches and facilities have lifeguards on duty before you go. CoastSafe solves this with two connected experiences:
+·	Visitors get live weather and marine conditions per location, community-submitted safety reports, and a directory of nearby facilities with lifeguard and amenity details.
+·	Business owners can list pools, water parks, and resorts — advertising lifeguard availability, hours, and amenities — subject to admin approval before going live.
+The project is designed to expand beyond Kenya's coast to other water bodies over time.
+Features
+·	🌤️ Live conditions for any coastal location, powered by the Open-Meteo Geocoding, Weather, and Marine APIs (no API key required)
+·	📝 Community safety reports — authenticated users can create, edit, and delete their own reports per location
+·	🏖️ Verified business listings — facility type, lifeguard availability and hours, and amenities, searchable by location
+·	🔐 JWT authentication with real token revocation, in-memory token storage (never localStorage), and ownership enforcement on every protected resource
+·	🛠️ Admin review queue for approving or rejecting new business listings
+·	📍 Dynamic location resolution — business owners can list a facility at any coastal location; new locations are created on the fly and merged safely with the curated set
+·	📱 Fully responsive, light ocean-themed UI
+Tech Stack
+Layer	Technology
+Frontend	React, Vite, Tailwind CSS, React Router
+Backend	Flask, Flask-SQLAlchemy, Flask-Migrate, Flask-JWT-Extended, Flask-CORS
+Database	PostgreSQL (hosted on Supabase)
+External data	Open-Meteo (Geocoding, Weather, Marine APIs)
+Frontend hosting	Vercel
+Backend hosting	Render
 
----
+Architecture
+┌──────────────┐        HTTPS/JSON        ┌──────────────┐        SQL         ┌──────────────┐
+│   Frontend   │ ───────────────────────▶ │   Backend    │ ─────────────────▶ │  PostgreSQL  │
+│ React/Vite   │ ◀─────────────────────── │ Flask API    │ ◀───────────────── │  (Supabase)  │
+│ (Vercel)     │      JWT-authed          │  (Render)    │                    │              │
+└──────────────┘                          └──────────────┘                    └──────────────┘
+       │
+       │  live weather / marine / geocoding
+       ▼
+┌──────────────┐
+│  Open-Meteo  │
+└──────────────┘
 
-## 📌 Project Objective
+Core backend building blocks:
+·	App-factory pattern with a modular structure (models, routes, decorators, extensions)
+·	Models:User, Location, SafetyReport, Business, TokenBlocklist
+·	Shared owns_resource decorator enforces per-resource ownership consistently across reports and listings, instead of duplicating checks per route
+·	admin_required decorator gates the business review queue
+·	Pagination on all list endpoints
+Getting Started
+Prerequisites
+·	Node.js 18+ and npm
+·	Python 3.11+
+·	A PostgreSQL database (local, or a free Supabase project)
+Backend Setup
+cd backend
+python -m venv venv
+source venv/bin/activate        # Windows: venv\Scripts\activate
+pip install -r requirements.txt
 
-CoastSafe brings weather, marine conditions, and community/business trust
-signals into one simple interface for people planning coastal activities.
+cp .env.example .env            # then fill in the values — see below
+flask db upgrade
+flask run
 
-Visitors can:
-
-- 🔍 Search any coastal location
-- ☀️ View live weather conditions
-- 🌊 View live marine conditions (wave height, swell, etc.)
-- 📝 Read community-submitted safety reports for a location
-- 🏨 Browse verified, admin-approved facility listings — including
-  lifeguard availability — to find a safe place to swim
-- 🔐 Create an account to submit their own safety reports or list a
-  business
-
-CoastSafe is an informational planning tool. It is **not** a navigation
-system, emergency service, lifeguard replacement, or professional marine
-advisory system.
-
----
-
-## ✅ Project Status
-
-| Phase | Scope | Status |
-|---|---|---|
-| **Phase 1** | React frontend, live Open-Meteo integration | ✅ Complete, deployed |
-| **Phase 2** | Flask + PostgreSQL backend, full CRUD, ownership, pagination | ✅ Complete, deployed |
-| **Phase 2 (frontend)** | JWT auth wired into the UI — signup, login, protected routes, report submission | ✅ Complete, merged |
-| **Business Listings** | Owner-submitted facility listings with admin approval workflow | 🚧 In progress |
-
----
-
-## 🛠️ Technology Stack
-
-**Frontend**
-- ⚛️ React + Vite
-- 🎨 Tailwind CSS
-- 🧭 React Router
-- ▲ Deployed on Vercel
-
-**Backend**
-- 🐍 Flask 3 (app-factory pattern)
-- 🗄️ PostgreSQL (hosted on Supabase)
-- 🔗 Flask-SQLAlchemy + Flask-Migrate
-- 🔑 Flask-JWT-Extended (real token revocation on logout)
-- 🌐 Deployed on Render
-
-**External APIs (Open-Meteo — no key required)**
-- 📍 Geocoding — `https://geocoding-api.open-meteo.com/v1/search`
-- ☀️ Weather Forecast — `https://api.open-meteo.com/v1/forecast`
-- 🌊 Marine Conditions — `https://marine-api.open-meteo.com/v1/marine`
-
----
-
-## 📂 Repository Structure
-
-```text
-Project-1/
-├── frontend/
-│   ├── public/
-│   └── src/
-│       ├── assets/
-│       ├── components/
-│       ├── context/        # AuthContext (in-memory JWT)
-│       ├── pages/
-│       ├── services/        # apiClient + one service per resource
-│       └── utils/
-├── backend/
-│   ├── app/
-│   │   ├── models/           # one file per table
-│   │   ├── routes/           # one blueprint per resource
-│   │   └── utils/            # ownership + admin decorators, pagination
-│   ├── migrations/
-│   └── seed.py
-├── docs/
-│   ├── api/
-│   ├── design/
-│   ├── development/
-│   └── presentation/
-├── .gitignore
-└── README.md
-```
-
----
-
-## 🚀 Setup & Run Locally
-
-**Backend** — see [`backend/README.md`](./backend/README.md) for full
-setup instructions.
-
-**Frontend**
-```bash
+The API will be available at http://localhost:5000.
+Frontend Setup
 cd frontend
 npm install
 
-# create frontend/.env
-echo "VITE_API_BASE_URL=http://localhost:5000/api" > .env
-
+cp .env.example .env            # then fill in the values — see below
 npm run dev
-```
 
----
+The app will be available at http://localhost:5173.
+Environment Variables
+Backend (backend/.env)
+Variable	Description
+FLASK_APP	Entry point, e.g. run.py
+FLASK_ENV	development or production
+SECRET_KEY	Flask secret key
+DATABASE_URL	PostgreSQL connection string (use the Supabase session pooler URL if your network lacks IPv6)
+JWT_SECRET_KEY	Secret used to sign JWTs
+JWT_ACCESS_TOKEN_EXPIRES_MINUTES	Access token lifetime
+FRONTEND_ORIGINS	Comma-separated allowed CORS origins
 
-## ✨ Core Functionality
+Frontend (frontend/.env)
+Variable	Description
+VITE_API_BASE_URL	Base URL of the backend API, e.g. http://localhost:5000/api
 
-### For visitors
-- Search any coastal location and see **live** weather + marine
-  conditions (not demo data)
-- Read community safety reports for a location
-- Browse admin-approved business/facility listings — see lifeguard
-  availability, hours, and amenities at a glance
+API Overview
+Method	Endpoint	Description
+POST	/api/auth/signup	Create an account
+POST	/api/auth/login	Log in, receive a JWT
+POST	/api/auth/logout	Revoke the current token
+GET	/api/locations	List locations
+POST	/api/locations/resolve	Find or create a location by name (auth required)
+GET	/api/reports	List safety reports
+POST	/api/reports	Create a report (auth required)
+PATCH / DELETE	/api/reports/:id	Update or delete own report (owner only)
+GET	/api/businesses	List approved business listings (public)
+GET	/api/businesses/mine	List the current user's own listings, any status
+GET	/api/businesses/pending	List pending listings (admin only)
+POST	/api/businesses	Submit a new listing (auth required, starts as pending)
+PATCH	/api/businesses/:id/status	Approve or reject a listing (admin only)
 
-### For account holders
-- Sign up, log in, log out (JWT, with real server-side revocation)
-- Submit a safety report tied to a location
-- Submit a facility listing for admin review
+Project Structure
+coastsafe/
+├── backend/
+│   ├── app/
+│   │   ├── models/          # User, Location, SafetyReport, Business, TokenBlocklist
+│   │   ├── routes/          # auth, locations, reports, businesses
+│   │   ├── decorators.py    # owns_resource, admin_required
+│   │   └── __init__.py      # app factory
+│   ├── migrations/
+│   ├── seed.py
+│   └── run.py
+└── frontend/
+    └── src/
+        ├── components/      # Navbar, ReportForm, BusinessForm, LocationCard, ...
+        ├── pages/            # Home, Explore, LocationDetails, Login, Signup,
+        │                     # ListYourBusiness, MyListings, AdminReviewQueue, About
+        ├── services/         # apiClient, authApi, locationsApi, reportsApi, businessesApi
+        ├── context/          # AuthContext (in-memory JWT)
+        └── data/             # coastalLocations.js (curated locations)
 
-### For admins
-- Review pending business listings
-- Approve or reject a listing before it becomes publicly visible
+Deployment
+Layer	Platform	Notes
+Frontend	Vercel	Auto-deploys on push to main; SPA rewrite configured via vercel.json
+Backend	Render	Free tier; gunicorn run:app
+Database	Supabase	Connected via the session pooler for IPv4 compatibility
 
----
-
-## 🔐 Auth & Ownership
-
-Every write to a `SafetyReport` or `Business` is checked against the
-authenticated user's ID via a single shared `owns_resource` decorator —
-users can only edit or delete records they created. Business listings
-additionally require admin approval (`status: pending → approved`)
-before they're visible to the public, enforced via a shared
-`admin_required` decorator. Both live in
-`backend/app/utils/decorators.py` — one place, never duplicated per
-route.
-
----
-
-## 🌳 Git Strategy
-
-One repository, one root (`Project-1/`), feature-branch workflow for
-every chunk of work:
-
-```text
-feature/backend-api
-feature/frontend-auth-integration
-feature/business-listings
-```
-
-Merged via GitHub pull requests with `--no-ff`, so history stays
-readable and every feature has a visible review trail.
-
-**Commit convention:**
-```text
-feat:  new functionality
-fix:   bug fixes
-chore: tooling, config, dependencies
-docs:  documentation
-style: formatting / non-functional UI changes
-```
-
----
-
-## 🧭 Development Principles
-
-- Keep components focused and reusable
-- Keep API calls inside service modules, never inline in UI components
-- Handle loading, errors, empty states, and success explicitly
-- One shared helper per concern (pagination, ownership, admin checks) —
-  never duplicated per resource
-- Feature-branch workflow for every new chunk of work
+Roadmap
+·	Expand coverage beyond Kenya's coast to other East African water bodies
+·	Native mobile app with push safety alerts
+·	Self-service appointment/booking for lifeguarded facilities
+·	Admin-only client-side route guard for /admin/businesses (currently enforced server-side only)
+Author
+Built by Thomas as a full-stack capstone project.

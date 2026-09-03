@@ -6,7 +6,8 @@ let cachedBackendLocations = null;
 
 async function getBackendLocations() {
   if (cachedBackendLocations === null) {
-    cachedBackendLocations = await apiRequest("/locations");
+    const result = await apiRequest("/locations?per_page=100");
+    cachedBackendLocations = Array.isArray(result) ? result : result.items ?? [];
   }
   return cachedBackendLocations;
 }

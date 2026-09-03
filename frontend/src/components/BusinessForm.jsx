@@ -75,7 +75,6 @@ function BusinessForm({ onCreated }) {
 
     setSubmitting(true);
     try {
-      // Find-or-create the Location on the backend from the geocoded result.
       const location = await resolveLocation(token, {
         name: selectedLocation.name,
         latitude: selectedLocation.latitude,
@@ -113,9 +112,9 @@ function BusinessForm({ onCreated }) {
 
   if (success) {
     return (
-      <div className="rounded-xl border border-cyan-400/30 bg-cyan-400/10 p-6 text-center">
-        <p className="text-lg font-semibold text-white">Listing submitted! 🎉</p>
-        <p className="mt-1 text-sm text-slate-300">
+      <div className="rounded-xl border border-turquoise/30 bg-turquoise/10 p-6 text-center">
+        <p className="text-lg font-semibold text-ink">Listing submitted! 🎉</p>
+        <p className="mt-1 text-sm text-ink/70">
           Your facility is now awaiting admin review. It won't appear publicly until approved.
         </p>
       </div>
@@ -125,29 +124,29 @@ function BusinessForm({ onCreated }) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {error && (
-        <div className="rounded-lg border border-red-400/30 bg-red-400/10 px-4 py-2 text-sm text-red-300">
+        <div className="rounded-lg border border-coral/30 bg-coral/10 px-4 py-2 text-sm text-coral">
           {error}
         </div>
       )}
 
       <div className="relative">
-        <label className="block text-sm font-medium text-slate-200">Location</label>
+        <label className="block text-sm font-medium text-ink/80">Location</label>
         <input
           type="text"
           value={locationQuery}
           onChange={handleLocationSearch}
           placeholder="Search any coastal location..."
-          className="mt-1 w-full rounded-lg border border-white/20 bg-white px-4 py-2 text-slate-900 outline-none focus:border-cyan-400"
+          className="mt-1 w-full rounded-lg border border-turquoise/25 bg-white px-4 py-2 text-ink outline-none focus:ring-4 focus:ring-turquoise/20"
         />
-        {searching && <p className="mt-1 text-xs text-slate-400">Searching...</p>}
+        {searching && <p className="mt-1 text-xs text-ink/50">Searching...</p>}
         {locationResults.length > 0 && (
-          <ul className="absolute z-10 mt-1 w-full rounded-lg border border-white/10 bg-slate-900 shadow-lg">
+          <ul className="absolute z-10 mt-1 w-full rounded-lg border border-turquoise/15 bg-white shadow-lg">
             {locationResults.map((result, i) => (
               <li key={i}>
                 <button
                   type="button"
                   onClick={() => handleSelectLocation(result)}
-                  className="block w-full px-4 py-2 text-left text-sm text-slate-200 hover:bg-white/10"
+                  className="block w-full px-4 py-2 text-left text-sm text-ink hover:bg-turquoise/5"
                 >
                   {result.name}
                   {result.admin1 ? `, ${result.admin1}` : ""}
@@ -158,26 +157,26 @@ function BusinessForm({ onCreated }) {
           </ul>
         )}
         {selectedLocation && (
-          <p className="mt-1 text-xs text-cyan-400">✓ Location selected</p>
+          <p className="mt-1 text-xs text-deep">✓ Location selected</p>
         )}
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-slate-200">Facility name</label>
+        <label className="block text-sm font-medium text-ink/80">Facility name</label>
         <input
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="mt-1 w-full rounded-lg border border-white/20 bg-white px-4 py-2 text-slate-900 outline-none focus:border-cyan-400"
+          className="mt-1 w-full rounded-lg border border-turquoise/25 bg-white px-4 py-2 text-ink outline-none focus:ring-4 focus:ring-turquoise/20"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-slate-200">Facility type</label>
+        <label className="block text-sm font-medium text-ink/80">Facility type</label>
         <select
           value={facilityType}
           onChange={(e) => setFacilityType(e.target.value)}
-          className="mt-1 w-full rounded-lg border border-white/20 bg-white px-4 py-2 text-slate-900 outline-none focus:border-cyan-400"
+          className="mt-1 w-full rounded-lg border border-turquoise/25 bg-white px-4 py-2 text-ink outline-none focus:ring-4 focus:ring-turquoise/20"
         >
           {FACILITY_TYPES.map((type) => (
             <option key={type.value} value={type.value}>{type.label}</option>
@@ -186,12 +185,12 @@ function BusinessForm({ onCreated }) {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-slate-200">Description</label>
+        <label className="block text-sm font-medium text-ink/80">Description</label>
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           rows={3}
-          className="mt-1 w-full rounded-lg border border-white/20 bg-white px-4 py-2 text-slate-900 outline-none focus:border-cyan-400"
+          className="mt-1 w-full rounded-lg border border-turquoise/25 bg-white px-4 py-2 text-ink outline-none focus:ring-4 focus:ring-turquoise/20"
         />
       </div>
 
@@ -201,56 +200,56 @@ function BusinessForm({ onCreated }) {
           id="lifeguardAvailable"
           checked={lifeguardAvailable}
           onChange={(e) => setLifeguardAvailable(e.target.checked)}
-          className="h-4 w-4"
+          className="h-4 w-4 accent-turquoise"
         />
-        <label htmlFor="lifeguardAvailable" className="text-sm text-slate-200">
+        <label htmlFor="lifeguardAvailable" className="text-sm text-ink/80">
           Lifeguard on duty
         </label>
       </div>
 
       {lifeguardAvailable && (
         <div>
-          <label className="block text-sm font-medium text-slate-200">Lifeguard hours</label>
+          <label className="block text-sm font-medium text-ink/80">Lifeguard hours</label>
           <input
             type="text"
             value={lifeguardHours}
             onChange={(e) => setLifeguardHours(e.target.value)}
             placeholder="e.g. 9am–6pm daily"
-            className="mt-1 w-full rounded-lg border border-white/20 bg-white px-4 py-2 text-slate-900 outline-none focus:border-cyan-400"
+            className="mt-1 w-full rounded-lg border border-turquoise/25 bg-white px-4 py-2 text-ink outline-none focus:ring-4 focus:ring-turquoise/20"
           />
         </div>
       )}
 
       <div>
-        <label className="block text-sm font-medium text-slate-200">
-          Amenities <span className="text-slate-400">(comma-separated)</span>
+        <label className="block text-sm font-medium text-ink/80">
+          Amenities <span className="text-ink/50">(comma-separated)</span>
         </label>
         <input
           type="text"
           value={amenitiesText}
           onChange={(e) => setAmenitiesText(e.target.value)}
           placeholder="e.g. parking, changing rooms, slides"
-          className="mt-1 w-full rounded-lg border border-white/20 bg-white px-4 py-2 text-slate-900 outline-none focus:border-cyan-400"
+          className="mt-1 w-full rounded-lg border border-turquoise/25 bg-white px-4 py-2 text-ink outline-none focus:ring-4 focus:ring-turquoise/20"
         />
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
-          <label className="block text-sm font-medium text-slate-200">Contact phone</label>
+          <label className="block text-sm font-medium text-ink/80">Contact phone</label>
           <input
             type="text"
             value={contactPhone}
             onChange={(e) => setContactPhone(e.target.value)}
-            className="mt-1 w-full rounded-lg border border-white/20 bg-white px-4 py-2 text-slate-900 outline-none focus:border-cyan-400"
+            className="mt-1 w-full rounded-lg border border-turquoise/25 bg-white px-4 py-2 text-ink outline-none focus:ring-4 focus:ring-turquoise/20"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-slate-200">Contact email</label>
+          <label className="block text-sm font-medium text-ink/80">Contact email</label>
           <input
             type="email"
             value={contactEmail}
             onChange={(e) => setContactEmail(e.target.value)}
-            className="mt-1 w-full rounded-lg border border-white/20 bg-white px-4 py-2 text-slate-900 outline-none focus:border-cyan-400"
+            className="mt-1 w-full rounded-lg border border-turquoise/25 bg-white px-4 py-2 text-ink outline-none focus:ring-4 focus:ring-turquoise/20"
           />
         </div>
       </div>
@@ -258,7 +257,7 @@ function BusinessForm({ onCreated }) {
       <button
         type="submit"
         disabled={submitting}
-        className="w-full rounded-xl bg-cyan-500 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-50"
+        className="w-full rounded-xl bg-turquoise px-6 py-3 font-semibold text-white transition hover:bg-deep disabled:cursor-not-allowed disabled:opacity-50"
       >
         {submitting ? "Submitting..." : "Submit Listing for Review"}
       </button>

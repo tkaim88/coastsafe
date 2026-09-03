@@ -1,7 +1,7 @@
 """
-Seeds the locations table with the same six Kenyan coastal towns already
-hardcoded in the Phase 1 frontend's coastalLocations.js, so the backend
-and frontend agree on locations from day one.
+Seeds the locations table with the Kenyan coastal towns curated in the
+frontend's coastalLocations.js, so the backend and frontend agree on
+locations from day one.
 
 Run with: python seed.py
 Safe to re-run — it skips any location that already exists by name.
@@ -46,6 +46,31 @@ LOCATIONS = [
         "name": "Lamu", "region": "Lamu County", "country": "Kenya",
         "latitude": -2.2717, "longitude": 40.902, "water_type": "beach",
         "description": "A historic island destination known for its Swahili architecture and surrounding coastline.",
+    },
+    {
+        "name": "Tiwi Beach", "region": "Kwale County", "country": "Kenya",
+        "latitude": -4.2333, "longitude": 39.5833, "water_type": "beach",
+        "description": "A quieter beach south of Mombasa, popular for its reef-protected swimming waters.",
+    },
+    {
+        "name": "Kilifi", "region": "Kilifi County", "country": "Kenya",
+        "latitude": -3.6333, "longitude": 39.85, "water_type": "creek",
+        "description": "A coastal town on Kilifi Creek known for its dramatic estuary and laid-back atmosphere.",
+    },
+    {
+        "name": "Shanzu", "region": "Mombasa County", "country": "Kenya",
+        "latitude": -3.9833, "longitude": 39.7333, "water_type": "beach",
+        "description": "A resort-lined beach area just north of Nyali, popular for water sports and hotels.",
+    },
+    {
+        "name": "Mtwapa", "region": "Kilifi County", "country": "Kenya",
+        "latitude": -3.9432, "longitude": 39.7461, "water_type": "creek",
+        "description": "A coastal town on Mtwapa Creek, known for its waterfront restaurants and nightlife near the beach.",
+    },
+    {
+        "name": "Tudor", "region": "Mombasa County", "country": "Kenya",
+        "latitude": -4.0511, "longitude": 39.6739, "water_type": "creek",
+        "description": "A creek-side area of Mombasa Island, close to the city center and Tudor Creek waterfront.",
     },
 ]
 

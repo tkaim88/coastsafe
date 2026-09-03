@@ -46,69 +46,71 @@ function AdminReviewQueue() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10">
-      <h1 className="text-2xl font-bold text-white">Pending Business Listings</h1>
+    <main className="min-h-screen bg-lagoon">
+      <div className="mx-auto max-w-3xl px-4 py-10">
+        <h1 className="font-display text-2xl font-medium text-ink">Pending Business Listings</h1>
 
-      {loading && <p className="mt-6 text-slate-400">Loading...</p>}
-      {error && (
-        <p className="mt-6 text-red-300">
-          {error}
-          {error.toLowerCase().includes("admin") && " — this page is admin-only."}
-        </p>
-      )}
+        {loading && <p className="mt-6 text-ink/60">Loading...</p>}
+        {error && (
+          <p className="mt-6 text-coral">
+            {error}
+            {error.toLowerCase().includes("admin") && " — this page is admin-only."}
+          </p>
+        )}
 
-      {!loading && !error && listings.length === 0 && (
-        <p className="mt-6 text-slate-400">No listings awaiting review.</p>
-      )}
+        {!loading && !error && listings.length === 0 && (
+          <p className="mt-6 text-ink/60">No listings awaiting review.</p>
+        )}
 
-      <div className="mt-6 space-y-4">
-        {listings.map((business) => (
-          <div key={business.id} className="rounded-xl border border-white/10 bg-white/5 p-5">
-            <h2 className="text-lg font-semibold text-white">{business.name}</h2>
-            <p className="text-sm text-slate-400">
-              {business.location_name} · {business.facility_type.replace("_", " ")}
-            </p>
-            {business.description && (
-              <p className="mt-2 text-sm text-slate-300">{business.description}</p>
-            )}
-            {business.lifeguard_available && (
-              <p className="mt-2 text-sm text-cyan-300">
-                🛟 Lifeguard on duty {business.lifeguard_hours ? `— ${business.lifeguard_hours}` : ""}
+        <div className="mt-6 space-y-4">
+          {listings.map((business) => (
+            <div key={business.id} className="rounded-xl border border-turquoise/15 bg-cream p-5">
+              <h2 className="text-lg font-semibold text-ink">{business.name}</h2>
+              <p className="text-sm text-ink/60">
+                {business.location_name} · {business.facility_type.replace("_", " ")}
               </p>
-            )}
-            {business.amenities?.length > 0 && (
-              <p className="mt-1 text-xs text-slate-400">
-                Amenities: {business.amenities.join(", ")}
+              {business.description && (
+                <p className="mt-2 text-sm text-ink/70">{business.description}</p>
+              )}
+              {business.lifeguard_available && (
+                <p className="mt-2 text-sm text-deep">
+                  🛟 Lifeguard on duty {business.lifeguard_hours ? `— ${business.lifeguard_hours}` : ""}
+                </p>
+              )}
+              {business.amenities?.length > 0 && (
+                <p className="mt-1 text-xs text-ink/50">
+                  Amenities: {business.amenities.join(", ")}
+                </p>
+              )}
+              <p className="mt-1 text-xs text-ink/40">
+                Contact: {business.contact_phone || "—"} · {business.contact_email || "—"}
               </p>
-            )}
-            <p className="mt-1 text-xs text-slate-500">
-              Contact: {business.contact_phone || "—"} · {business.contact_email || "—"}
-            </p>
 
-            <div className="mt-4 flex gap-3">
-              <button
-                onClick={() => handleDecision(business.id, "approved")}
-                className="rounded-lg bg-cyan-500 px-4 py-1.5 text-sm font-semibold text-slate-950 hover:bg-cyan-400"
-              >
-                Approve
-              </button>
-              <button
-                onClick={() => handleDecision(business.id, "rejected")}
-                className="rounded-lg border border-red-400/30 px-4 py-1.5 text-sm text-red-300 hover:bg-red-400/10"
-              >
-                Reject
-              </button>
-              <button
-                onClick={() => handleDelete(business.id)}
-                className="rounded-lg border border-slate-400/30 px-4 py-1.5 text-sm text-slate-300 hover:bg-white/10"
-              >
-                Delete
-              </button>
+              <div className="mt-4 flex gap-3">
+                <button
+                  onClick={() => handleDecision(business.id, "approved")}
+                  className="rounded-lg bg-turquoise px-4 py-1.5 text-sm font-semibold text-white hover:bg-deep"
+                >
+                  Approve
+                </button>
+                <button
+                  onClick={() => handleDecision(business.id, "rejected")}
+                  className="rounded-lg border border-coral/30 px-4 py-1.5 text-sm text-coral hover:bg-coral/10"
+                >
+                  Reject
+                </button>
+                <button
+                  onClick={() => handleDelete(business.id)}
+                  className="rounded-lg border border-ink/20 px-4 py-1.5 text-sm text-ink/60 hover:bg-ink/5"
+                >
+                  Delete
+                </button>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
-    </div>
+    </main>
   );
 }
 
